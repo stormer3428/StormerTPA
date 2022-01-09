@@ -1,0 +1,3 @@
+teleportationTicksDelay: 60
+requiresImmobile: false
+teleportRequestDuration : 300
