@@ -6,9 +6,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,8 +15,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.stormer3428.TPA.TeleportRequest.TeleportRequestType;
+import fr.stormer3428.TPA.common.Lang;
+import fr.stormer3428.TPA.common.Message;
 
-public class Tpa extends JavaPlugin implements CommandExecutor, TabCompleter, Listener {
+public class Tpa extends JavaPlugin implements Listener {
 	
 	public static Tpa i;
 
@@ -76,13 +76,13 @@ public class Tpa extends JavaPlugin implements CommandExecutor, TabCompleter, Li
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(!(sender instanceof Player)) {
-			Message.error(sender, "Sorry, but only a player may run this command");
+			Message.error(sender, Lang.ERROR_PLAYERONLY.toString());
 			return false;
 		}
 		Player p = (Player) sender;
 		if(command.getName().equalsIgnoreCase("tpa") || command.getName().equalsIgnoreCase("tpahere")) {
 			if(args.length == 0) {
-				Message.error(p, "You need to specify the player you wish to send the request to");
+				Message.error(p, Lang.ERROR_MISSING_PLAYER_ARG.toString());
 				return false;
 			}
 			for(Player pls : Bukkit.getOnlinePlayers()) {
@@ -91,7 +91,7 @@ public class Tpa extends JavaPlugin implements CommandExecutor, TabCompleter, Li
 					return true;
 				}
 			}
-			Message.error(p, "No player with such name");
+			Message.error(p, Lang.ERROR_NOPLAYER.toString());
 			return false;
 		}
 		if(command.getName().equalsIgnoreCase("tpaccept")) {
@@ -109,7 +109,7 @@ public class Tpa extends JavaPlugin implements CommandExecutor, TabCompleter, Li
 	public void onmove(PlayerMoveEvent e) {
 		if(!requiresImmobile) return;
 		if(TeleportRequest.all.containsKey(e.getPlayer()) && TeleportRequest.all.get(e.getPlayer()).teleporting) {
-			Message.normal("You moved! Teleportation cancelled...");
+			Message.normal(Lang.TPA_CANCELLED_MOVE.toString());
 			TeleportRequest.all.get(e.getPlayer()).cancel();
 		}
 	}
