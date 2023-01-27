@@ -61,6 +61,7 @@ public class Tpa extends JavaPlugin implements Listener {
 		
 		getServer().getPluginManager().registerEvents(this, this);
 		loadConfig();
+		Message.instantiateLang(i);
 	}
 
 	public void loadConfig() {

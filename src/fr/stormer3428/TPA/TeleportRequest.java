@@ -25,6 +25,7 @@ public class TeleportRequest {
 	public boolean processed = false;
 
 	public static TeleportRequest createRequest(Player sender, Player receiver, TeleportRequestType type) {
+		Message.normal("Request from " + sender.getName() + " to " + receiver.getName() + " of type " + type.name());
 		if(all.containsKey(receiver)) 
 			if(all.get(receiver).processed) all.remove(receiver);
 			else {
@@ -121,7 +122,7 @@ public class TeleportRequest {
 			target = this.receiver;
 			destination = this.sender;
 		}
-		Block b = destination.getWorld().getHighestBlockAt(target.getLocation());
+		Block b = destination.getWorld().getHighestBlockAt(destination.getLocation());
 		while(b.getLocation().getY() > 0 && b.isPassable() && !b.isLiquid()) b = b.getRelative(0, -1, 0);
 		if(Tpa.unsafeTypes.contains(b.getType()) || Tpa.unsafeTypes.contains(b.getRelative(0,1,0).getType()) || Tpa.unsafeTypes.contains(b.getRelative(0,2,0).getType()) || Tpa.unsafeTypes.contains(b.getRelative(0,-1,0).getType())) {
 			Message.error(target, Lang.TPA_CANCELLED_UNSAFE.toString());
