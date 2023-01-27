@@ -25,7 +25,6 @@ public class TeleportRequest {
 	public boolean processed = false;
 
 	public static TeleportRequest createRequest(Player sender, Player receiver, TeleportRequestType type) {
-		Message.normal("Request from " + sender.getName() + " to " + receiver.getName() + " of type " + type.name());
 		if(all.containsKey(receiver)) 
 			if(all.get(receiver).processed) all.remove(receiver);
 			else {
