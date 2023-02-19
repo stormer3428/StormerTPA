@@ -2,8 +2,11 @@ package fr.stormer3428.TPA;
 
 import java.util.HashMap;
 
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import fr.stormer3428.TPA.common.Lang;
@@ -81,11 +84,11 @@ public class TeleportRequest {
 		Message.normal(target, Lang.TPA_REQUEST_ACCEPTED_FROM.toString().replace("<PLAYER>", destination.getName()));
 		
 		if(Tpa.teleportationTicksDelay <= 0) {
-			teleport();
+			findSafeTeleportSpot();
 			return;
 		}
 		
-		TeleportRequest.this.teleporting = true;
+		this.teleporting = true;
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -93,7 +96,7 @@ public class TeleportRequest {
 					cancel();
 					return;
 				}
-				teleport();
+				findSafeTeleportSpot();
 			}
 		}.runTaskLater(Tpa.i, Tpa.teleportationTicksDelay);
 	}
@@ -114,23 +117,49 @@ public class TeleportRequest {
 		all.remove(this.receiver);
 	}
 
-	private void teleport() {
+	private void findSafeTeleportSpot() {
 		Player target = this.sender;
 		Player destination = this.receiver;
 		if (this.type == TeleportRequestType.TPAHERE) {
 			target = this.receiver;
 			destination = this.sender;
 		}
-		Block b = destination.getWorld().getHighestBlockAt(destination.getLocation());
-		while(b.getLocation().getY() > 0 && b.isPassable() && !b.isLiquid()) b = b.getRelative(0, -1, 0);
-		if(Tpa.unsafeTypes.contains(b.getType()) || Tpa.unsafeTypes.contains(b.getRelative(0,1,0).getType()) || Tpa.unsafeTypes.contains(b.getRelative(0,2,0).getType()) || Tpa.unsafeTypes.contains(b.getRelative(0,-1,0).getType())) {
+		
+		Location loc = destination.getLocation();
+		while(!isSafe(loc) && loc.getY() < 319) loc.add(0,1,0);
+		if(isSafe(loc)) teleport(target, loc);
+		else {
 			Message.error(target, Lang.TPA_CANCELLED_UNSAFE.toString());
 			Message.error(destination, Lang.TPA_CANCELLED_UNSAFE.toString());
-		}else target.teleport(b.getLocation().getBlock().getLocation().add(0.5, 1, 0.5));
+		}
 		this.processed = true;
 		all.remove(this.receiver);
 	}
 	
+	private static boolean isSafe(Location loc) {
+		Block feet = loc.getBlock();
+		Block head = feet.getRelative(0,1,0);
+		Block below = feet.getRelative(0,-1,0);
+		if(below.isPassable()) return false;
+		if(!feet.isPassable()) return false;
+		if(!head.isPassable()) return false;
+		if(Tpa.unsafeTypes.contains(below.getType())) return false;
+		return true;
+	}
+
+	@SuppressWarnings("unused")
+	private static void teleport(Player target, Block b) {
+		teleport(target, b.getLocation().getBlock().getLocation().add(0.5, 1, 0.5));
+	}
+	
+	private static void teleport(Player target, Location loc) {
+		target.teleport(loc);
+		target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0, true));
+		target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 255, true));
+		target.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60, 255, true));
+		target.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0, true));
+	}
+
 	public void cancel() {
 		this.processed = true;
 		Message.normal(this.sender, Lang.TPA_CANCELLED.toString());

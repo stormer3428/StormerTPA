@@ -3,7 +3,7 @@ main: fr.stormer3428.TPA.Tpa
 author: stormer3428
 name: "StormerTPA"
 api : []
-version: 0.0.1
+version: 0.0.6
 commands:
   tpa:
     description: "Sends a request to teleport you to a player"
